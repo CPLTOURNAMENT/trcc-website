@@ -16,7 +16,7 @@ import Fixtures from './pages/Fixtures';
 import FanContests from './pages/FanContests';
 import Auction from './pages/Auction';
 import AdminAuction from './pages/AdminAuction';
-import AdminLiveAuction from './pages/AdminLiveAuction.jsx';
+import AdminLiveAuction from './pages/adminLiveAuction';
 import AuctionLive from './pages/AuctionLive';
 import Fantasy from './pages/Fantasy';
 import Leaderboard from './pages/Leaderboard';
