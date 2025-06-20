@@ -1,13 +1,5 @@
-// src/pages/Teams.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-<Link to={`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`}>
-  <div className={`bg-gradient-to-br ${team.color} ...`}>
-    ...
-  </div>
-</Link>
-
 
 const teams = [
   { name: 'Team Alpha', players: ['Player A1', 'Player A2', 'Player A3', 'Player A4', 'Player A5'] },
@@ -26,14 +18,18 @@ const Teams = () => {
       <h2 className="text-4xl font-bold text-yellow-400 text-center mb-14">Meet the TRCC Teams</h2>
       <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-10 max-w-6xl mx-auto">
         {teams.map((team, index) => (
-          <div
+          <Link
+            to={`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`}
             key={index}
-            className={`bg-gradient-to-br ${team.color} text-center p-6 rounded-xl shadow-xl border-2 border-yellow-400 hover:scale-105 transform transition duration-300 cursor-pointer`}
           >
-            <div className="w-20 h-20 mx-auto bg-yellow-300 rounded-full mb-4"></div>
-            <h3 className="text-xl font-bold text-white">{team.name}</h3>
-            <p className="text-sm mt-1 text-gray-200">5 Players</p>
-          </div>
+            <div
+              className={`bg-gradient-to-br from-indigo-800 to-purple-800 text-center p-6 rounded-xl shadow-xl border-2 border-yellow-400 hover:scale-105 transform transition duration-300 cursor-pointer`}
+            >
+              <div className="w-20 h-20 mx-auto bg-yellow-300 rounded-full mb-4"></div>
+              <h3 className="text-xl font-bold text-white">{team.name}</h3>
+              <p className="text-sm mt-1 text-gray-200">5 Players</p>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
