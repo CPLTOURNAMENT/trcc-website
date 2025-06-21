@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import NotFound from './pages/NotFound';
 
 // Layout
 import Footer from './components/Footer';
@@ -51,7 +52,7 @@ const App = () => {
             <Route path="/news" element={<News />} />
             <Route path="/fixtures" element={<Fixtures />} />
             <Route path="/fan-contests" element={<FanContests />} />
-
+            
             {/* AUCTION SYSTEM */}
             <Route path="/auction" element={<Auction />} />
             <Route path="/admin-auction" element={<AdminAuction />} />
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/google-login" element={<GoogleLogin />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="*" element={<NotFound />} />
 
             {/* 404 PAGE */}
             <Route path="*" element={<NotFound />} />
