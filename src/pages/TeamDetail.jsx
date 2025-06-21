@@ -1,97 +1,110 @@
-// src/pages/TeamDetail.jsx
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
-const teamsData = {
-  'team-alpha': {
-    name: 'Team Alpha',
-    color: 'from-purple-600 to-purple-800',
-    overview: 'Team Alpha is known for precision attacks and strong coordination.',
-    stats: { played: 6, won: 5, lost: 1, stars: 22 },
-    players: [
-      { name: 'Alpha1', role: 'Attacker', stars: 6, attacks: 4, rate: '75%' },
-      { name: 'Alpha2', role: 'Defender', stars: 3, attacks: 2, rate: '60%' },
-      { name: 'Alpha3', role: 'Strategist', stars: 5, attacks: 3, rate: '67%' },
-      { name: 'Alpha4', role: 'Support', stars: 4, attacks: 2, rate: '70%' },
-      { name: 'Alpha5', role: 'Attacker', stars: 4, attacks: 3, rate: '80%' },
-    ],
-  },
-  // Add Shadow Kings, etc...
-};
+const sheetURL = 'https://docs.google.com/spreadsheets/d/17aOTjg6rQ_uBer2U-3JeLPKTDWAXmug26NxqwpBP-Aw/gviz/tq?tqx=out:json&sheet=Teams';
 
 const TeamDetail = () => {
-  const { slug } = useParams();
-  const team = teamsData[slug];
-  const [activeTab, setActiveTab] = useState('overview');
+  const { id } = useParams();
+  const [team, setTeam] = useState(null);
 
-  if (!team) return <div className="text-white text-center py-20">Team Not Found</div>;
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(sheetURL);
+      const text = await res.text();
+      const json = JSON.parse(text.substring(47).slice(0, -2));
+      const headers = json.table.cols.map(col => col.label);
+      const rows = json.table.rows.map(row =>
+        row.c.reduce((acc, cell, i) => {
+          acc[headers[i]] = cell?.v || '';
+          return acc;
+        }, {})
+      );
+
+      const selected = rows[parseInt(id)];
+      setTeam(selected);
+
+      // 🛡 Change favicon manually (no Helmet)
+      if (selected?.Image) {
+        const existingFavicon = document.querySelector("link[rel='icon']");
+        if (existingFavicon) {
+          existingFavicon.href = selected.Image;
+        } else {
+          const newFavicon = document.createElement('link');
+          newFavicon.rel = 'icon';
+          newFavicon.href = selected.Image;
+          document.head.appendChild(newFavicon);
+        }
+      }
+
+      // Optional: change page title dynamically
+      document.title = `${selected['Team Name']} - CPL`;
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (!team) return <div className="p-20 text-white text-center">Loading...</div>;
+
+  const themeColor = team['Color'] || '#f26522';
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${team.color} text-white py-20 px-6`}>
-      <div className="text-center mb-8">
-        <h2 className="text-5xl font-bold text-yellow-300 mb-2">{team.name}</h2>
+    <div style={{ backgroundColor: '#0a0a23', color: '#fff', minHeight: '100vh' }}>
+      {/* Header Section */}
+      <div style={{ backgroundColor: themeColor }} className="p-6 text-center shadow-lg">
+        <img
+          src={team['Image']}
+          alt={team['Team Name']}
+          className="w-28 h-28 rounded-full mx-auto border-4 border-white"
+        />
+        <h1 className="text-4xl font-bold mt-4">{team['Team Name']}</h1>
+        <p className="text-md text-black font-semibold">Captain: {team['Captain']}</p>
       </div>
 
-      {/* TAB MENU */}
-      <div className="flex justify-center gap-6 mb-10">
-        {['overview', 'squad', 'stats'].map(tab => (
-          <button
-            key={tab}
-            className={`uppercase px-4 py-2 font-semibold rounded-full ${
-              activeTab === tab
-                ? 'bg-yellow-400 text-purple-900'
-                : 'bg-white/20 hover:bg-white/30'
-            }`}
-            onClick={() => setActiveTab(tab)}
+      <div className="p-6 max-w-4xl mx-auto">
+        {/* Description */}
+        {team['Description'] && (
+          <>
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-3">About the Team</h2>
+            <p className="text-gray-300 leading-relaxed">{team['Description']}</p>
+          </>
+        )}
+
+        {/* Players */}
+        {team['Players'] && (
+          <>
+            <h2 className="text-2xl font-semibold text-yellow-400 mt-8 mb-3">Players</h2>
+            <div className="grid sm:grid-cols-2 gap-2 text-sm text-white">
+              {team['Players'].split(',').map((p, i) => (
+                <div
+                  key={i}
+                  className="bg-indigo-800 p-3 rounded-lg shadow border border-yellow-500 transition-all duration-300 hover:scale-105 hover:bg-indigo-700"
+                >
+                  {p.trim()}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Trophies */}
+        {team['Trophies'] && (
+          <>
+            <h2 className="text-2xl font-semibold text-yellow-400 mt-8 mb-3">Trophies</h2>
+            <div className="bg-black/20 p-4 rounded-lg text-center border border-yellow-400 text-yellow-300 text-sm">
+              🏆 {team['Trophies']}
+            </div>
+          </>
+        )}
+
+        {/* Back Link */}
+        <div className="mt-10 text-center">
+          <Link
+            to="/teams"
+            className="text-yellow-300 underline hover:text-yellow-100 transition"
           >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* TAB CONTENT */}
-      <div className="max-w-6xl mx-auto">
-        {activeTab === 'overview' && (
-          <div className="text-center text-lg bg-white/10 p-6 rounded-lg">
-            {team.overview}
-          </div>
-        )}
-
-        {activeTab === 'squad' && (
-          <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-8">
-            {team.players.map((player, idx) => (
-              <div
-                key={idx}
-                className="bg-white text-purple-900 p-6 rounded-xl shadow-lg text-center hover:scale-105 transition"
-              >
-                <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 bg-gray-200">
-                  <img
-                    src={`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${player.name}`}
-                    alt={player.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-bold">{player.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{player.role}</p>
-                <div className="text-sm text-gray-700">
-                  <p>⭐ Stars: {player.stars}</p>
-                  <p>⚔️ Attacks: {player.attacks}</p>
-                  <p>🎯 Rate: {player.rate}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === 'stats' && (
-          <div className="text-center text-lg bg-white/10 p-6 rounded-lg space-y-2">
-            <p>🕹 Matches Played: <span className="text-yellow-300">{team.stats.played}</span></p>
-            <p>🏆 Wins: <span className="text-yellow-300">{team.stats.won}</span></p>
-            <p>❌ Losses: <span className="text-yellow-300">{team.stats.lost}</span></p>
-            <p>⭐ Total Stars: <span className="text-yellow-300">{team.stats.stars}</span></p>
-            <p>🔥 Win Rate: <span className="text-yellow-300">{Math.round((team.stats.won / team.stats.played) * 100)}%</span></p>
-          </div>
-        )}
+            &larr; Back to All Teams
+          </Link>
+        </div>
       </div>
     </div>
   );
