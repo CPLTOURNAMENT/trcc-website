@@ -1,11 +1,10 @@
 // src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NotFound from './pages/NotFound';
 
 // Layout
 import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop'; // Handles scroll reset on route change
+import ScrollToTop from './components/ScrollToTop'; // Scroll reset on route change
 
 // Pages
 import Home from './pages/Home';
@@ -28,15 +27,14 @@ import Leaderboard from './pages/Leaderboard';
 import Login from './pages/Login';
 import GoogleLogin from './pages/GoogleLogin';
 import AdminPanel from './pages/AdminPanel';
-import NotFound from './pages/NotFound'; // Optional 404 page
+import NotFound from './pages/NotFound'; // ✅ Make sure this file exists
 
 const App = () => {
   return (
     <Router>
       <ScrollToTop />
       <div className="flex flex-col min-h-screen bg-black text-white">
-        {/* Optional Header */}
-        {/* <Header /> */}
+        {/* Optional Header can go here */}
 
         <main className="flex-grow">
           <Routes>
@@ -52,7 +50,7 @@ const App = () => {
             <Route path="/news" element={<News />} />
             <Route path="/fixtures" element={<Fixtures />} />
             <Route path="/fan-contests" element={<FanContests />} />
-            
+
             {/* AUCTION SYSTEM */}
             <Route path="/auction" element={<Auction />} />
             <Route path="/admin-auction" element={<AdminAuction />} />
@@ -67,7 +65,6 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/google-login" element={<GoogleLogin />} />
             <Route path="/admin" element={<AdminPanel />} />
-            <Route path="*" element={<NotFound />} />
 
             {/* 404 PAGE */}
             <Route path="*" element={<NotFound />} />
