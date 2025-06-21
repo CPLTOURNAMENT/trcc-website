@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CoC Tournament Auction</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background: #1c1c1c;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ff8c00;
+    }
+    h1 { color: #ff8c00; }
+    input, button {
+      width: 80%;
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    input {
+      background: #333;
+      color: #fff;
+    }
+    button {
+      background: #ff8c00;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .timer {
+      font-size: 20px;
+      color: #00ffcc;
+      margin: 15px 0;
+    }
+    .auth-info {
+      margin: 10px 0;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🔥 CoC Auction Center</h1>
+
+    <!-- Countdown Timer -->
+    <div class="timer">
+      Auction Starts In: <span id="countdown"></span>
+    </div>
+
+    <!-- Google Sign-In -->
+    <button onclick="signInWithGoogle()">Sign In with Google</button>
+    <div class="auth-info" id="authStatus">❌ Not signed in</div>
+
+    <!-- Live Bid Info -->
+    <p>Highest Bid: <strong id="highestBid">Loading...</strong></p>
+
+    <!-- Bid Input -->
+    <input type="number" id="bid" placeholder="Enter your bid (₹)">
+    <button onclick="submitBid()">Place Bid</button>
+
+    <!-- Catalog Items -->
+    <h3>🛒 Items Up for Auction:</h3>
+    <ul style="text-align:left;">
+      <li><b>Golden Barbarian Skin</b> – Starting at ₹500</li>
+      <li><b>Shadow Scenery</b> – Starting at ₹750</li>
+      <li><b>Legend League Statue</b> – Starting at ₹1000</li>
+    </ul>
+  </div>
+
+  <script>
+    // Firebase Config - replace with your real values
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const bidRef = db.collection("bids");
+    const leaderboardRef = db.collection("leaderboard");
+
+    // Google Sign-In
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          const user = result.user;
+          document.getElementById("authStatus").innerText = `✅ Signed in as: ${user.displayName}`;
+        })
+        .catch(err => {
+          alert("Sign-in failed.");
+        });
+    }
+
+    // Auth State
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("authStatus").innerText = `✅ Signed in as: ${user.displayName || user.email}`;
+      } else {
+        document.getElementById("authStatus").innerText = "❌ Not signed in.";
+      }
+    });
+
+    // Submit Bid (restricted to logged-in users)
+    async function submitBid() {
+      const user = auth.currentUser;
+      const amount = parseInt(document.getElementById("bid").value);
+
+      if (!user) return alert("Sign in to place a bid.");
+      if (isNaN(amount) || amount <= 0) return alert("Enter a valid amount.");
+
+      await bidRef.add({
+        name: user.displayName || user.email,
+        amount,
+        userId: user.uid,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      await leaderboardRef.doc(user.uid).set({
+        name: user.displayName || user.email,
+        highestBid: amount,
+        totalSpent: firebase.firestore.FieldValue.increment(amount)
+      }, { merge: true });
+
+      document.getElementById("bid").value = "";
+    }
+
+    // Realtime Highest Bid
+    bidRef.orderBy("amount", "desc").limit(1).onSnapshot(snapshot => {
+      snapshot.forEach(doc => {
+        const bid = doc.data();
+        document.getElementById("highestBid").innerText = `${bid.name} – ₹${bid.amount}`;
+      });
+    });
+
+    // Countdown Timer to 8 PM IST today
+    function startCountdown() {
+      const now = new Date();
+      const target = new Date();
+      target.setHours(20, 0, 0, 0); // 8 PM IST
+
+      if (now > target) target.setDate(target.getDate() + 1); // if time passed, set for tomorrow
+
+      const interval = setInterval(() => {
+        const diff = target - new Date();
+        if (diff <= 0) {
+          document.getElementById("countdown").innerText = "Auction Started!";
+          clearInterval(interval);
+        } else {
+          const hours = Math.floor(diff / 1000 / 60 / 60);
+          const mins = Math.floor((diff / 1000 / 60) % 60);
+          const secs = Math.floor((diff / 1000) % 60);
+          document.getElementById("countdown").innerText = `${hours}h ${mins}m ${secs}s`;
+        }
+      }, 1000);
+    }
+
+    startCountdown();
+  </script>
+
+</body>
+</html>

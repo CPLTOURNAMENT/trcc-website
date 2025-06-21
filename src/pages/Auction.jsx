@@ -1,4 +1,3 @@
-// src/pages/Auction.jsx
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -29,18 +28,32 @@ const Auction = () => {
               <th className="px-4 py-3">Bought By</th>
             </tr>
           </thead>
-          <tbody className="bg-purple-800 divide-y divide-yellow-500">
-            {players.map((p, i) => (
-              <tr key={i} className="hover:bg-purple-700 transition">
-                <td className="px-4 py-3 font-semibold">{p.name}</td>
-                <td className="px-4 py-3">{p.role}</td>
-                <td className="px-4 py-3">₹{p.basePrice}</td>
-                <td className={`px-4 py-3 ${p.status === 'Sold' ? 'text-green-300' : 'text-red-400'}`}>{p.status}</td>
-                <td className="px-4 py-3">{p.soldPrice !== '-' ? `₹${p.soldPrice}` : '-'}</td>
-                <td className="px-4 py-3">{p.team}</td>
+
+          {/* Conditional Table Body */}
+          {players.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan="6" className="text-center py-6 text-gray-300">
+                  No players yet...
+                </td>
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          ) : (
+            <tbody className="bg-purple-800 divide-y divide-yellow-500">
+              {players.map((p, i) => (
+                <tr key={i} className="hover:bg-purple-700 transition">
+                  <td className="px-4 py-3 font-semibold">{p.name}</td>
+                  <td className="px-4 py-3">{p.role}</td>
+                  <td className="px-4 py-3">₹{p.basePrice}</td>
+                  <td className={`px-4 py-3 ${p.status === 'Sold' ? 'text-green-300' : 'text-red-400'}`}>
+                    {p.status}
+                  </td>
+                  <td className="px-4 py-3">{p.soldPrice !== '-' ? `₹${p.soldPrice}` : '-'}</td>
+                  <td className="px-4 py-3">{p.team}</td>
+                </tr>
+              ))}
+            </tbody>
+          )}
         </table>
       </div>
     </div>

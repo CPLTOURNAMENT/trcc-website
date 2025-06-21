@@ -13,6 +13,10 @@ const Home = () => {
           <a href="/teams" className="hover:text-yellow-300">Teams</a>
           <a href="/schedule" className="hover:text-yellow-300">Schedule</a>
           <a href="/results" className="hover:text-yellow-300">Results</a>
+          <a href="/auction" className="hover:text-yellow-300">Auction</a>
+          <a href="/about" className="hover:text-yellow-300">About</a>
+          <a href="/records" className="hover:text-yellow-300">Records</a>
+          <a href="/trophys" className="hover:text-yellow-300">Trophies</a>
           <a href="/contact" className="hover:text-yellow-300">Contact</a>
         </nav>
       </header>
@@ -20,7 +24,9 @@ const Home = () => {
       {/* HERO SECTION */}
       <section className="text-center py-20 px-6 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-800">
         <h2 className="text-6xl font-extrabold text-yellow-300 drop-shadow-lg">The Battle Begins</h2>
-        <p className="text-xl mt-6 max-w-3xl mx-auto font-light text-white">8 Elite Clans. 40 Warriors. One Champion. Welcome to the biggest Clash of Clans tournament – TRCC TROPHY.</p>
+        <p className="text-xl mt-6 max-w-3xl mx-auto font-light text-white">
+          8 Elite Clans. 40 Warriors. One Champion. Welcome to the biggest Clash of Clans tournament – TRCC TROPHY.
+        </p>
         <div className="mt-10 space-x-4">
           <a href="/teams" className="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
             View Teams
